@@ -247,6 +247,36 @@ QUnit.test('8XY6', function (assert) {
   }
 });
 
+QUnit.test('8XY7', function (assert) {
+  var index1 = mkindex();
+  var index2 = mkindex();
+  var l1 = mkvalue();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .setRegister(index2)
+    .fromValue(l2)
+    .subtractWithCarry(index1, index2)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 !== index2 && i === index2) {
+      expected = l2;
+    } else if (index1 !== index2 && i === index1) {
+      expected = (l1 - l2 + 0xFF) % 0xFF;
+    } else if (index1 !== index2 && i === 0xF) {
+      expected = (l1 - l2) < 0? 0 : 1;
+    } else if (index1 === index2 && i === 0xF) {
+      expected = 1;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
