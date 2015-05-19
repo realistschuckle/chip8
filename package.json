@@ -1,0 +1,16 @@
+{
+  "name": "chip8",
+  "version": "1.0.0",
+  "description": "A CHIP-8 emulator in ECMAscript",
+  "main": "chip8.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Curtis Schlak <realistschuckle@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.7.1",
+    "gulp": "^3.8.11",
+    "qunitjs": "^1.18.0"
+  }
+}
