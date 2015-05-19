@@ -39,6 +39,11 @@
 
       if (h === 0 && l === 0) {
         break;
+      } else if (h >= 0x30 && h < 0x40) {
+        var skip = this._registers[h % 0x30] !== l;
+        if (skip) {
+          this._inst += 2;
+        }
       } else if (h >= 0x40 && h < 0x50) {
         var skip = this._registers[h % 0x40] !== l;
         if (skip) {

@@ -31,6 +31,56 @@ QUnit.test('screen memory initialized to zero', function (assert) {
   }
 });
 
+QUnit.test('3XKK does not skip if different', function (assert) {
+  var index1 = mkindex();
+  var index2 = (index1 + 1) % 0xF;
+  var l1 = mkvalue();
+  var l2 = (l1 + 1) & 0xFF;
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfEqual(index1, l2)
+    .setRegister(index2)
+    .toValue(l2)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
+QUnit.test('3XKK skips if same', function (assert) {
+  var index1 = mkindex();
+  var index2 = (index1 + 1) % 0xF;
+  var l1 = mkvalue();
+  var l2 = (l1 + 1) & 0xFF;
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfEqual(index1, l1)
+    .setRegister(index2)
+    .toValue(l2)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+    } else if (index2 === i) {
+      expected = l2;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
 QUnit.test('4XKK skips if different', function (assert) {
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
@@ -572,6 +622,12 @@ Program.prototype.skipIfSame = function (index1, index2) {
 
 Program.prototype.skipIfUnequal = function (index1, value) {
   this.program.push(0x40 + index1);
+  this.program.push(value);
+  return this;
+};
+
+Program.prototype.skipIfEqual = function (index1, value) {
+  this.program.push(0x30 + index1);
   this.program.push(value);
   return this;
 };
