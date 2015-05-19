@@ -8,7 +8,7 @@ A CHIP-8 emulator in ECMAscript
   1NNN     Jump to NNN
   2NNN     Call subroutine at NNN
   3XKK     Skip next instruction if VX == KK
-  4XKK     Skip next instruction if VX <> KK
+✔ 4XKK     Skip next instruction if VX <> KK
 ✔ 5XY0     Skip next instruction if VX == VY
 ✔ 6XKK     VX := KK
 ✔ 7XKK     VX := VX + KK
