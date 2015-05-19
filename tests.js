@@ -13,6 +13,11 @@ QUnit.test('registers initialized to zero', function (assert) {
   }
 });
 
+QUnit.test('address pointer initialized to zero', function (assert) {
+  var emulator = new chip8.Emulator();
+  assert.equal(emulator.i, 0);
+});
+
 QUnit.test('stack and stack pointer initialized to zero', function (assert) {
   var emulator = new chip8.Emulator();
   assert.equal(emulator.sp, 0);
@@ -511,6 +516,16 @@ QUnit.test('9XY0 does not skip if same', function (assert) {
   }
 });
 
+QUnit.test('ANNN sets the index reigster', function (assert) {
+  var l1 = mkbigvalue();
+
+  var emulator = new Program()
+    .setIndexRegister(l1)
+    .run();
+
+  assert.equal(emulator.i, l1);
+});
+
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
@@ -518,6 +533,10 @@ function mkindex() {
 
 function mkvalue() {
   return Math.floor(Math.random() * 0x100);
+}
+
+function mkbigvalue() {
+  return Math.floor(Math.random() * 0x1000);
 }
 
 function runProgram(program) {
@@ -629,6 +648,13 @@ Program.prototype.skipIfUnequal = function (index1, value) {
 Program.prototype.skipIfEqual = function (index1, value) {
   this.program.push(0x30 + index1);
   this.program.push(value);
+  return this;
+};
+
+Program.prototype.setIndexRegister = function (value) {
+  var value = 0xA000 + value;
+  this.program.push(value >> 8);
+  this.program.push(value & 0xFF);
   return this;
 };
 

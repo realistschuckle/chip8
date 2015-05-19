@@ -12,6 +12,7 @@
     this._program = new Uint8Array(this._buffer, 0x200, 0xD00);
     this._inst = 0;
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
+    this._i = 0;
   }
 
   Emulator.prototype.v = function (index) {
@@ -86,11 +87,13 @@
         this._registers[h - 0x80] |= this._registers[(l - 0x1) / 0x10];
       } else if (h >= 0x80 && h < 0x90 && (l & 0x1) === 0) {
         this._registers[h - 0x80] = this._registers[l / 0x10];
-      } else if (h >= 0x90 && h < 0x100 && (l & 0x1) === 0) {
+      } else if (h >= 0x90 && h < 0xA0 && (l & 0x1) === 0) {
         var skip = this._registers[h % 0x90] !== this._registers[l / 0x10];
         if (skip) {
           this._inst += 2;
         }
+      } else if (h >= 0xA0 && h < 0xB0) {
+        this._i = (h & 0xF) * 0x100 + l;
       } else {
         var inst = h.toString(16) + l.toString(16);
         console.log('not a recognized instruction:', inst);
@@ -106,8 +109,13 @@
     }
   });
   
+  Object.defineProperty(Emulator.prototype, 'i', {
+    get: function () {
+      return this._i;
+    }
+  });
+
   Object.defineProperty(Emulator.prototype, 'gfx', {
-    enumerable: true,
     get: function () {
       var buffer = new ArrayBuffer(8 * 4);
       return new Uint8Array(buffer);
