@@ -44,6 +44,14 @@
       } else if (h >= 0x70 && h < 0x80) {
         this._registers[h - 0x70] += l;
         this._registers[h - 0x70] %= 0x100;
+      } else if (h >= 0x80 && h < 0x90 && (l & 0xE) === 0xE) {
+        this._registers[0xF] = this._registers[h - 0x80] & 0x80;
+        var result = (this._registers[h - 0x80] << 1) & 0xFF;
+        this._registers[h - 0x80] = result;
+      } else if (h >= 0x80 && h < 0x90 && (l & 0x7) === 0x7) {
+        var diff = this._registers[(l - 0x7) / 0x10] - this._registers[h - 0x80];
+        this._registers[h - 0x80] = (diff + 0xFF) % 0xFF;
+        this._registers[0xF] = diff >= 0? 1 : 0;
       } else if (h >= 0x80 && h < 0x90 && (l & 0x6) === 0x6) {
         this._registers[0xF] = this._registers[h - 0x80] & 0x1;
         this._registers[h - 0x80] >>= 1;
@@ -63,6 +71,14 @@
         this._registers[h - 0x80] |= this._registers[(l - 0x1) / 0x10];
       } else if (h >= 0x80 && h < 0x90 && (l & 0x1) === 0) {
         this._registers[h - 0x80] = this._registers[l / 0x10];
+      } else if (h >= 0x90 && h < 0x100 && (l & 0x1) === 0) {
+        var skip = this._registers[h % 0x90] !== this._registers[l / 0x10];
+        if (skip) {
+          this._inst += 2;
+        }
+      } else {
+        var inst = h.toString(16) + l.toString(16);
+        console.log('not a recognized instruction:', inst);
       }
 
       this._inst += 2;

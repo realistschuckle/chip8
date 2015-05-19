@@ -257,8 +257,8 @@ QUnit.test('8XY7', function (assert) {
     .setRegister(index1)
     .toValue(l1)
     .setRegister(index2)
-    .fromValue(l2)
-    .subtractWithCarry(index1, index2)
+    .toValue(l2)
+    .reverseSubtractWithCarry(index1, index2)
     .run();
 
   for (var i = 0; i < 16; i += 1) {
@@ -267,11 +267,61 @@ QUnit.test('8XY7', function (assert) {
     if (index1 !== index2 && i === index2) {
       expected = l2;
     } else if (index1 !== index2 && i === index1) {
-      expected = (l1 - l2 + 0xFF) % 0xFF;
+      expected = (l2 - l1 + 0xFF) % 0xFF;
     } else if (index1 !== index2 && i === 0xF) {
-      expected = (l1 - l2) < 0? 0 : 1;
+      expected = (l2 - l1) < 0? 0 : 1;
     } else if (index1 === index2 && i === 0xF) {
       expected = 1;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
+QUnit.test('8XYE', function (assert) {
+  var index1 = mkindex();
+  var l1 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .shiftLeft(index1)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = (l1 << 1) & 0xFF;
+    } else if (i === 0xF) {
+      expected = l1 & 0x80;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
+QUnit.test('9XY0 skips if different', function (assert) {
+  var index1 = mkindex();
+  var index2 = (index1 + 1) % 0xF;
+  var l1 = mkvalue();
+  var l2 = (l1 + 1) % 0xFF;
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .setRegister(index2)
+    .toValue(l2)
+    .skipIfDifferent(index1, index2)
+    .setRegister(index1)
+    .toValue(l2)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+    } else if (index2 == i) {
+      expected = l2;
     }
     assert.equal(actual, expected);
   }
@@ -330,6 +380,12 @@ Program.prototype.subtractWithCarry = function (index1, index2) {
   return this;
 };
 
+Program.prototype.reverseSubtractWithCarry = function (index1, index2) {
+  this.program.push(0x80 + index1);
+  this.program.push(index2 * 0x10 + 0x7);
+  return this;
+};
+
 Program.prototype.addValue = Program.prototype.toValue = function (value) {
   this.program.push(value)
   return this;
@@ -359,6 +415,18 @@ Program.prototype.xor = function (value) {
 Program.prototype.shiftRight = function (index) {
   this.program.push(0x80 + index);
   this.program.push(mkindex() * 0x10 + 0x6);
+  return this;
+};
+
+Program.prototype.shiftLeft = function (index) {
+  this.program.push(0x80 + index);
+  this.program.push(mkindex() * 0x10 + 0xE);
+  return this;
+};
+
+Program.prototype.skipIfDifferent = function (index1, index2) {
+  this.program.push(0x90 + index1);
+  this.program.push(index2 * 0x10);
   return this;
 };
 
