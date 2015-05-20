@@ -526,6 +526,21 @@ QUnit.test('ANNN sets the index reigster', function (assert) {
   assert.equal(emulator.i, l1);
 });
 
+QUnit.test('FX1E adds VX to I', function (assert) {
+  var index1 = mkindex();
+  var l1 = mkvalue();
+  var l2 = mkbigvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .setIndexRegister(l2)
+    .addRegisterToIndexRegister(index1)
+    .run();
+
+  assert.equal(emulator.i, l1 + l2);
+});
+
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
@@ -658,3 +673,8 @@ Program.prototype.setIndexRegister = function (value) {
   return this;
 };
 
+Program.prototype.addRegisterToIndexRegister = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x1E);
+  return this;
+};

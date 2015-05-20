@@ -94,6 +94,8 @@
         }
       } else if (h >= 0xA0 && h < 0xB0) {
         this._i = (h & 0xF) * 0x100 + l;
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
+        this._i += this._registers[h - 0xF0];
       } else {
         var inst = h.toString(16) + l.toString(16);
         console.log('not a recognized instruction:', inst);
