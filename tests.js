@@ -69,7 +69,7 @@ QUnit.test('2NNN calls subroutine at NNN', function (assert) {
   var l1 = mkvalue();
 
   var program = new Program()
-    .call(0x200 + index1);
+    .call(0x200 + index2);
 
   for (var i = 2; i < index2; i += 1) {
     program.noop();

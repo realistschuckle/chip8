@@ -54,6 +54,9 @@
       } else if (h >= 0x10 && h < 0x20) {
         this._inst = ((h & 0xF) * 0x100 + l) - 0x200;
         continue;
+      } else if (h >= 0x20 && h < 0x30) {
+        this._inst = ((h & 0xF) * 0x100 + l) - 0x200;
+        continue;
       } else if (h >= 0x30 && h < 0x40) {
         var skip = this._registers[h % 0x30] !== l;
         if (skip) {
