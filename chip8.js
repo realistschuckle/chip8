@@ -7,6 +7,12 @@
     root.chip8 = factory();
   }
 }(this, function () {
+  function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+
   function Emulator() {
     this._buffer = new ArrayBuffer(0x1000);
     this._memory = new Uint8Array(this._buffer);
@@ -114,7 +120,7 @@
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x65) {
         this._registers.set(this._memory.slice(this._i, this._i + h - 0xF0 + 1));
       } else {
-        var inst = h.toString(16) + l.toString(16);
+        var inst = pad(h.toString(16), 2) + pad(l.toString(16), 2);
         console.log('not a recognized instruction:', inst);
       }
 

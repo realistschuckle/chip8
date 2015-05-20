@@ -63,6 +63,33 @@ QUnit.test('1NNN jumps to NNN', function (assert) {
   }
 });
 
+QUnit.test('2NNN calls subroutine at NNN', function (assert) {
+  var index1 = mkindex();
+  var index2 = Math.floor(Math.random() * 16) + 3;
+  var l1 = mkvalue();
+
+  var program = new Program()
+    .call(0x200 + index1);
+
+  for (var i = 2; i < index2; i += 1) {
+    program.noop();
+  }
+
+  var emulator = program
+    .setRegister(index1)
+    .toValue(l1)
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
 QUnit.test('3XKK does not skip if different', function (assert) {
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
@@ -816,5 +843,12 @@ Program.prototype.jumpTo = function (value) {
   value = 0x1000 + value;
   this.program.push(value >> 8);
   this.program.push(value & 0xFF);
+  return this;
+};
+
+Program.prototype.call = function (address) {
+  address = 0x2000 + address;
+  this.program.push(address >> 8);
+  this.program.push(address & 0xFF);
   return this;
 };
