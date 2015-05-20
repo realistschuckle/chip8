@@ -9,6 +9,7 @@
 }(this, function () {
   function Emulator() {
     this._buffer = new ArrayBuffer(0x1000);
+    this._memory = new Uint8Array(this._buffer);
     this._program = new Uint8Array(this._buffer, 0x200, 0xD00);
     this._inst = 0;
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
@@ -21,6 +22,10 @@
 
   Emulator.prototype.stack = function (index) {
     return 0;
+  };
+
+  Emulator.prototype.memory = function (from, to) {
+    return this._memory.slice(from, from + to);
   };
 
   Emulator.prototype.load = function (program) {
@@ -77,7 +82,7 @@
         this._registers[0xF] = diff >= 0? 1 : 0;
       } else if (h >= 0x80 && h < 0x90 && (l & 0x4) === 0x4) {
         var sum = this._registers[h - 0x80] + this._registers[(l - 0x4) / 0x10];
-        this._registers[h - 0x80] = sum % 0xFF;
+        this._registers[h - 0x80] = sum & 0xFF;
         this._registers[0xF] = sum > 0xFF? 1 : 0;
       } else if (h >= 0x80 && h < 0x90 && (l & 0x3) === 0x3) {
         this._registers[h - 0x80] ^= this._registers[(l - 0x3) / 0x10];
@@ -96,6 +101,8 @@
         this._i = (h & 0xF) * 0x100 + l;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x55) {
+        this._memory.set(this._registers.slice(0, h - 0xF0 + 1), this._i);
       } else {
         var inst = h.toString(16) + l.toString(16);
         console.log('not a recognized instruction:', inst);

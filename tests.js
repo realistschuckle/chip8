@@ -346,9 +346,9 @@ QUnit.test('8XY4', function (assert) {
     if (index1 !== index2 && i === index2) {
       expected = l2;
     } else if (index1 !== index2 && i === index1) {
-      expected = (l1 + l2) % 0xFF;
+      expected = (l1 + l2) & 0xFF;
     } else if (index1 === index2 && i === index1) {
-      expected = (l2 * 2) % 0xFF;
+      expected = (l2 * 2) & 0xFF;
     } else if (i === 0xF) {
       expected = (l1 + l2) > 0xFF? 1 : 0;
     }
@@ -541,6 +541,30 @@ QUnit.test('FX1E adds VX to I', function (assert) {
   assert.equal(emulator.i, l1 + l2);
 });
 
+QUnit.test('FX55 stores V0..VX in memory at I', function (assert) {
+  var index1 = mkindex();
+  var l1 = Math.min(mkvalue(), 0xE0);
+  var l2 = mkvalue();
+
+  var program = new Program()
+    .setIndexRegister(l2);
+
+  for (var i = 0; i <= index1; i += 1) {
+    program
+      .setRegister(i)
+      .toValue(l1 + i);
+  }
+
+  var emulator = program
+    .copyToMemoryThrough(index1)
+    .run();
+
+  var mem = emulator.memory(l2, l2 + index1);
+  for (var i = 0; i <= index1; i += 1) {
+    assert.equal(mem[i], l1 + i);
+  }
+});
+
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
@@ -676,5 +700,11 @@ Program.prototype.setIndexRegister = function (value) {
 Program.prototype.addRegisterToIndexRegister = function (index) {
   this.program.push(0xF0 + index);
   this.program.push(0x1E);
+  return this;
+};
+
+Program.prototype.copyToMemoryThrough = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x55);
   return this;
 };
