@@ -101,6 +101,11 @@
         this._i = (h & 0xF) * 0x100 + l;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
+        var value = this._registers[h - 0xF0];
+        this._memory[this._i] = Math.floor(value / 100);
+        this._memory[this._i + 1] = Math.floor((value % 100) / 10);
+        this._memory[this._i + 2] = value % 10;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x55) {
         this._memory.set(this._registers.slice(0, h - 0xF0 + 1), this._i);
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x65) {

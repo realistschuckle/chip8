@@ -349,8 +349,10 @@ QUnit.test('8XY4', function (assert) {
       expected = (l1 + l2) & 0xFF;
     } else if (index1 === index2 && i === index1) {
       expected = (l2 * 2) & 0xFF;
-    } else if (i === 0xF) {
+    } else if (index1 !== index2 && i === 0xF) {
       expected = (l1 + l2) > 0xFF? 1 : 0;
+    } else if (i === 0xF) {
+      expected = (l2 * 2) > 0xFF? 1 : 0;
     }
     assert.equal(actual, expected);
   }
@@ -539,6 +541,27 @@ QUnit.test('FX1E adds VX to I', function (assert) {
     .run();
 
   assert.equal(emulator.i, l1 + l2);
+});
+
+QUnit.test('FX33 stores the BCD of VX in M(I)..M(I+2)', function (assert) {
+  var index1 = mkindex();
+  var l1 = mkvalue();
+  var l2 = mkindex() + index1;
+  var h = Math.floor(l1 / 100);
+  var t = Math.floor((l1 % 100) / 10);
+  var d = l1 % 10;
+
+  var emulator = new Program()
+    .setIndexRegister(l2)
+    .setRegister(index1)
+    .toValue(l1)
+    .bcdFrom(index1)
+    .run();
+
+  var mem = emulator.memory(l2, l2 + 2);
+  assert.equal(mem[0], h);
+  assert.equal(mem[1], t);
+  assert.equal(mem[2], d);
 });
 
 QUnit.test('FX55 stores V0..VX in memory at M(I)', function (assert) {
@@ -755,3 +778,9 @@ Program.prototype.noop = function (value) {
   this.program.push(value);
   return this;
 }
+
+Program.prototype.bcdFrom = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x33);
+  return this;
+};

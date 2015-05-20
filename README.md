@@ -33,7 +33,7 @@ A CHIP-8 emulator in ECMAscript
   FX18     sound_timer := VX
 ✔ FX1E     I := I + VX
   FX29     Point I to 5-byte font sprite for hex character VX
-  FX33     Store BCD representation of VX in M(I)..M(I+2)
+✔ FX33     Store BCD representation of VX in M(I)..M(I+2)
 ✔ FX55     Store V0..VX in memory starting at M(I)
 ✔ FX65     Read V0..VX from memory starting at M(I)
 ```
