@@ -103,6 +103,8 @@
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x55) {
         this._memory.set(this._registers.slice(0, h - 0xF0 + 1), this._i);
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x65) {
+        this._registers.set(this._memory.slice(this._i, this._i + h - 0xF0 + 1));
       } else {
         var inst = h.toString(16) + l.toString(16);
         console.log('not a recognized instruction:', inst);

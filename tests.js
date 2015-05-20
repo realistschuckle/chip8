@@ -565,6 +565,35 @@ QUnit.test('FX55 stores V0..VX in memory at I', function (assert) {
   }
 });
 
+QUnit.test('FX65 sets V0..VX from memory at I', function (assert) {
+  var index1 = mkindex();
+  var l1 = mkvalue() + 0x10;
+  var l2 = Math.min(mkvalue(), 0xE0);
+
+  var program = new Program()
+    .setIndexRegister(0x200 + l1)
+    .copFromMemoryThrough(index1)
+    .noop();
+
+  for (var i = program.length; i < l1; i += 1) {
+    program.noop();
+  }
+
+  for (var i = 0; i <= index1; i += 1) {
+    program.noop(l2 + i)
+  }
+
+  var emulator = program.run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var expected = 0;
+    if (i <= index1) {
+      expected = l2 + i;
+    }
+    assert.equal(emulator.v(i), expected);
+  }
+});
+
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
@@ -588,6 +617,12 @@ function runProgram(program) {
 function Program() {
   this.program = [];
 }
+
+Object.defineProperty(Program.prototype, 'length', {
+  get: function () {
+    return this.program.length;
+  }
+});
 
 Program.prototype.run = function () {
   return runProgram(this.program);
@@ -708,3 +743,15 @@ Program.prototype.copyToMemoryThrough = function (index) {
   this.program.push(0x55);
   return this;
 };
+
+Program.prototype.copFromMemoryThrough = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x65);
+  return this;
+};
+
+Program.prototype.noop = function (value) {
+  value = value || 0;
+  this.program.push(value);
+  return this;
+}
