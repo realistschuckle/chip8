@@ -18,14 +18,6 @@ QUnit.test('address pointer initialized to zero', function (assert) {
   assert.equal(emulator.i, 0);
 });
 
-QUnit.test('stack and stack pointer initialized to zero', function (assert) {
-  var emulator = new chip8.Emulator();
-  assert.equal(emulator.sp, 0);
-  for (var i = 0; i < 16; i += 1) {
-    assert.equal(emulator.stack(i), 0);
-  }
-});
-
 QUnit.test('screen memory initialized to zero', function (assert) {
   var emulator = new chip8.Emulator();
   var pixels = emulator.gfx;
@@ -33,6 +25,47 @@ QUnit.test('screen memory initialized to zero', function (assert) {
     for (var row = 0; row < 4; row += 1) {
       assert.equal(pixels[col * row + row], 0);
     }
+  }
+});
+
+QUnit.test('00EE returns from subroutine', function (assert) {
+  var index1 = mkindex();
+  var index2 = Math.floor(Math.random() * 16) + 5;
+  var index3 = mkindex();
+  var l1 = mkvalue();
+  var l2 = mkvalue() + 1;
+
+  while (index1 === index3) {
+    index3 = mkindex();
+  }
+
+  var program = new Program()
+    .call(0x200 + index2)
+    .setRegister(index3)
+    .toValue(l2);
+
+  for (var i = 4; i < index2; i += 1) {
+    program.noop();
+  }
+
+  var emulator = program
+    .setRegister(index1)
+    .toValue(l1)
+    .exitSub()
+    .run();
+
+  for (var i = 0; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var message = undefined;
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+      message = 'First register at ' + index1 + ' ?= ' + l1;
+    } else if (index3 === i) {
+      expected = l2;
+      message = 'Second register at ' + index3 + ' ?= ' + l2;
+    }
+    assert.equal(actual, expected, message);
   }
 });
 
@@ -850,5 +883,11 @@ Program.prototype.call = function (address) {
   address = 0x2000 + address;
   this.program.push(address >> 8);
   this.program.push(address & 0xFF);
+  return this;
+};
+
+Program.prototype.exitSub = function () {
+  this.program.push(0);
+  this.program.push(0xEE);
   return this;
 };
