@@ -541,7 +541,7 @@ QUnit.test('FX1E adds VX to I', function (assert) {
   assert.equal(emulator.i, l1 + l2);
 });
 
-QUnit.test('FX55 stores V0..VX in memory at I', function (assert) {
+QUnit.test('FX55 stores V0..VX in memory at M(I)', function (assert) {
   var index1 = mkindex();
   var l1 = Math.min(mkvalue(), 0xE0);
   var l2 = mkvalue();
@@ -565,7 +565,7 @@ QUnit.test('FX55 stores V0..VX in memory at I', function (assert) {
   }
 });
 
-QUnit.test('FX65 sets V0..VX from memory at I', function (assert) {
+QUnit.test('FX65 sets V0..VX from memory at M(I)', function (assert) {
   var index1 = mkindex();
   var l1 = mkvalue() + 0x10;
   var l2 = Math.min(mkvalue(), 0xE0);
