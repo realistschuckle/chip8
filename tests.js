@@ -719,6 +719,7 @@ function mkbigvalue() {
 
 function runProgram(program) {
   var emulator = new chip8.Emulator();
+  emulator.quitOn0000 = true;
   emulator.load(program);
   emulator.run();
   return emulator;

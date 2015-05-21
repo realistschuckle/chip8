@@ -21,6 +21,7 @@
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
     this._i = 0;
     this._stack = [];
+    this.quitOn0000 = false;
   }
 
   Emulator.prototype.v = function (index) {
@@ -45,8 +46,7 @@
     while (true) {
       h = this._program[this._inst];
       l = this._program[this._inst + 1];
-
-      if (h === 0 && l === 0) {
+      if (h === 0 && l === 0 && this.quitOn0000) {
         break;
       } else if (h === 0 && l === 0xEE) {
         this._inst = this._stack.pop();
@@ -126,7 +126,7 @@
       } else {
         var inst = pad(h.toString(16), 2) + pad(l.toString(16), 2);
         console.log('not a recognized instruction:', inst);
-        throw new Error(inst);
+        throw new Error('unrecognized instruction: ' + inst);
       }
 
       this._inst += 2;
