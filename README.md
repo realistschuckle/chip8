@@ -33,7 +33,7 @@ http://en.m.wikipedia.org/wiki/CHIP-8
 ✔ EXA1     Skip next instruction if key VX not pressed
 ✔ FX07     VX := delay_timer
 ✔ FX0A     wait for keypress, store hex value of key in VX
-  FX15     delay_timer := VX
+✔ FX15     delay_timer := VX
   FX18     sound_timer := VX
 ✔ FX1E     I := I + VX
   FX29     Point I to 5-byte font sprite for hex character VX

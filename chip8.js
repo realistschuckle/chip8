@@ -150,6 +150,8 @@
         this._registers[h - 0xF0] = this._delayTimer;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x0A) {
         this._waitingForKey = (h & 0xF) + 1;
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x15) {
+        this._delayTimer = this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
@@ -180,6 +182,12 @@
   Object.defineProperty(Emulator.prototype, 'i', {
     get: function () {
       return this._i;
+    }
+  });
+  
+  Object.defineProperty(Emulator.prototype, 'delay', {
+    get: function () {
+      return this._delayTimer;
     }
   });
   

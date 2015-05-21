@@ -892,6 +892,24 @@ QUnit.test('FX0A waits for keypress, stores in VX', function (assert) {
   }, 50);
 });
 
+QUnit.test('FX15 sets delay_timer to VX', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .setDelayTimerTo(index1)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    var delay = emulator.delay;
+    assert.ok(0 < delay && delay <= l1);
+    done();
+  });
+});
+
 QUnit.test('FX1E adds VX to I', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1245,5 +1263,11 @@ Program.prototype.toDelayTimer = function () {
   var h = 0xF0 + (this.program.pop() & 0xF);
   this.program.push(h);
   this.program.push(0x07);
+  return this;
+};
+
+Program.prototype.setDelayTimerTo = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x15);
   return this;
 };
