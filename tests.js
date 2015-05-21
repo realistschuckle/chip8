@@ -938,6 +938,34 @@ QUnit.test('FX15 sets delay timer which does count down 0', function (assert) {
   setTimeout(check, 100);
 });
 
+QUnit.test('FX18 sets sound timer which does count down to 0', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .setSoundTimerTo(index1)
+    .waitForKeypress(index1)
+    .run();
+
+  function check() {
+    if (emulator.sound === 0) {
+      assert.ok(true);
+      emulator.keydown(0);
+      return done();
+    }
+
+    assert.ok(emulator.sound < l1, 'delay: ' + emulator.sound);
+    l1 = emulator.sound;
+
+    setTimeout(check, 100);
+  }
+
+  setTimeout(check, 100);
+});
+
 QUnit.test('FX1E adds VX to I', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1297,5 +1325,11 @@ Program.prototype.toDelayTimer = function () {
 Program.prototype.setDelayTimerTo = function (index) {
   this.program.push(0xF0 + index);
   this.program.push(0x15);
+  return this;
+};
+
+Program.prototype.setSoundTimerTo = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x18);
   return this;
 };

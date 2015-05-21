@@ -22,6 +22,7 @@
     this._keys = 0;
     this._i = 0;
     this._delayTimer = 0;
+    this._soundTimer = 0;
     this._stack = [];
     this.quitOn0000 = false;
     this.running = false;
@@ -62,6 +63,9 @@
     var timerCountDown = function () {
       if (this._delayTimer > 0) {
         this._delayTimer -= 1;
+      }
+      if (this._soundTimer > 0) {
+        this._soundTimer -= 1;
       }
 
       window.requestAnimationFrame(timerCountDown.bind(this));
@@ -162,6 +166,8 @@
         this._waitingForKey = (h & 0xF) + 1;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x15) {
         this._delayTimer = this._registers[h - 0xF0];
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x18) {
+        this._soundTimer = this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
@@ -198,6 +204,12 @@
   Object.defineProperty(Emulator.prototype, 'delay', {
     get: function () {
       return this._delayTimer;
+    }
+  });
+  
+  Object.defineProperty(Emulator.prototype, 'sound', {
+    get: function () {
+      return this._soundTimer;
     }
   });
   
