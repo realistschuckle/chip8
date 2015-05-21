@@ -16,14 +16,23 @@
   function Emulator() {
     this._buffer = new ArrayBuffer(0x1000);
     this._memory = new Uint8Array(this._buffer);
-    this._program = new Uint8Array(this._buffer, 0x200, 0xD00);
+    this._program = new Uint8Array(this._buffer, 0x200, 0xCA0);
     this._inst = 0;
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
+    this._keys = 0;
     this._i = 0;
     this._stack = [];
     this.quitOn0000 = false;
     this.running = false;
   }
+
+  Emulator.prototype.keydown = function (key) {
+    this._keys |= 1 << key;
+  };
+
+  Emulator.prototype.keyup = function (key) {
+    this._keys &= (0xFFFF ^ (1 << key));
+  };
 
   Emulator.prototype.v = function (index) {
     return this._registers[index];
@@ -122,6 +131,10 @@
         return window.requestAnimationFrame(loop.bind(this));
       } else if (h >= 0xC0 && h < 0xD0) {
         this._registers[h & 0xF] = l & Math.floor(Math.random() * 0xFF);
+      } else if (h >= 0xE0 && h <= 0xF0 && l == 0x9E) {
+        if (this._keys & (1 << this._registers[h & 0xF])) {
+          this._inst += 2;
+        }
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
@@ -141,22 +154,15 @@
 
       this._inst += 2;
 
-      window.requestAnimationFrame(loop.bind(this));
+      window.setTimeout(loop.bind(this), 2);
     }
 
-    window.requestAnimationFrame(loop.bind(this));
+    window.setTimeout(loop.bind(this), 2);
   };
 
   Object.defineProperty(Emulator.prototype, 'i', {
     get: function () {
       return this._i;
-    }
-  });
-
-  Object.defineProperty(Emulator.prototype, 'gfx', {
-    get: function () {
-      var buffer = new ArrayBuffer(8 * 4);
-      return new Uint8Array(buffer);
     }
   });
   

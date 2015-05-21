@@ -18,16 +18,6 @@ QUnit.test('address pointer initialized to zero', function (assert) {
   assert.equal(emulator.i, 0);
 });
 
-QUnit.test('screen memory initialized to zero', function (assert) {
-  var emulator = new chip8.Emulator();
-  var pixels = emulator.gfx;
-  for (var col = 0; col < 8; col += 1) {
-    for (var row = 0; row < 4; row += 1) {
-      assert.equal(pixels[col * row + row], 0);
-    }
-  }
-});
-
 QUnit.test('00EE returns from subroutine', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -748,8 +738,7 @@ QUnit.test('BNNN jumps to NNN + V0', function (assert) {
   });
 });
 
-QUnit.test('FX1E adds VX to I', function (assert) {
-  var done = assert.async();
+QUnit.test('CXKK sets VX to KK & rand()', function (assert) {
   var index = mkindex();
   var l1 = mkindex();
   var l2 = mkindex();
@@ -761,9 +750,68 @@ QUnit.test('FX1E adds VX to I', function (assert) {
     .withValue(l2)
     .run();
 
+  assert.ok(1, 'I do not really know how to test this...');
+});
+
+QUnit.test('EX9E skips instruction if key VX pressed', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfKeyPressed(index1)
+    .setRegister(index1)
+    .toValue(l2)
+    .pressKey(l1)
+    .run();
+
   emulator.waitForEmulatorToComplete(function () {
-    assert.notEqual(emulator.v(index), l1);
-    assert.notEqual(emulator.v(index), l2);
+    assert.equal(emulator.v(index1), l1);
+    done();
+  });
+});
+
+QUnit.test('EX9E does not skip instruction if key VX not pressed', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfKeyPressed(index1)
+    .setRegister(index1)
+    .toValue(l2)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.v(index1), l2);
+    done();
+  });
+});
+
+QUnit.test('EX9E does not skip instruction if key VX pressed then not pressed', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfKeyPressed(index1)
+    .setRegister(index1)
+    .toValue(l2)
+    .pressKey(l1)
+    .depressKey(l1)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.v(index1), l2);
     done();
   });
 });
@@ -895,10 +943,16 @@ function mkbigvalue() {
   return Math.floor(Math.random() * 0x1000);
 }
 
-function runProgram(program) {
+function runProgram(program, pressedKey, depressedKey) {
   var emulator = new chip8.Emulator();
   emulator.quitOn0000 = true;
   emulator.load(program);
+  if (pressedKey) {
+    emulator.keydown(pressedKey);
+  }
+  if (depressedKey) {
+    emulator.keyup(pressedKey);
+  }
   emulator.run();
   return emulator;
 }
@@ -914,7 +968,7 @@ Object.defineProperty(Program.prototype, 'length', {
 });
 
 Program.prototype.run = function () {
-  return runProgram(this.program);
+  return runProgram(this.program, this.pressedKey, this.depressedKey);
 };
 
 Program.prototype.setRegister = function (index) {
@@ -1082,3 +1136,19 @@ Program.prototype.randomize = function (index) {
   this.program.push(0xC0 + index);
   return this;
 }
+
+Program.prototype.skipIfKeyPressed = function (index) {
+  this.program.push(0xE0 + index);
+  this.program.push(0x9E);
+  return this;
+}
+
+Program.prototype.pressKey = function (index) {
+  this.pressedKey = index;
+  return this;
+};
+
+Program.prototype.depressKey = function (index) {
+  this.depressedKey = index;
+  return this;
+};

@@ -25,7 +25,8 @@ A CHIP-8 emulator in ECMAscript
 ✔ ANNN     I := NNN
 ✔ BNNN     Jump to NNN+V0
 ✔ CXKK     VX := pseudorandom_number and KK
-  EX9E     Skip next instruction if key VX pressed
+  DXYN     Show N-byte sprite from M(I) at coords (VX,VY), VF := collision.
+✔ EX9E     Skip next instruction if key VX pressed
   EXA1     Skip next instruction if key VX not pressed
   FX07     VX := delay_timer
   FX0A     wait for keypress, store hex value of key in VX
