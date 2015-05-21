@@ -1,6 +1,9 @@
 # chip8
 A CHIP-8 emulator in ECMAscript
 
+## What's CHIP-8?
+http://en.m.wikipedia.org/wiki/CHIP-8
+
 ## Opcodes
 ```
   00E0     Clear display
