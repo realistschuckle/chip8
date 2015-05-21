@@ -135,6 +135,10 @@
         if (this._keys & (1 << this._registers[h & 0xF])) {
           this._inst += 2;
         }
+      } else if (h >= 0xE0 && h <= 0xF0 && l == 0xA1) {
+        if ((this._keys & (1 << this._registers[h & 0xF])) === 0) {
+          this._inst += 2;
+        }
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {

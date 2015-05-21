@@ -816,6 +816,47 @@ QUnit.test('EX9E does not skip instruction if key VX pressed then not pressed', 
   });
 });
 
+QUnit.test('EXA1 skips instruction if key VX unpressed', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfKeyUnpressed(index1)
+    .setRegister(index1)
+    .toValue(l2)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.v(index1), l1);
+    done();
+  });
+});
+
+QUnit.test('EXA1 does not skip instruction if key VX pressed', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+  var l2 = mkvalue();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .skipIfKeyUnpressed(index1)
+    .setRegister(index1)
+    .toValue(l2)
+    .pressKey(l1)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.v(index1), l2);
+    done();
+  });
+});
+
 QUnit.test('FX1E adds VX to I', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1143,6 +1184,12 @@ Program.prototype.skipIfKeyPressed = function (index) {
   return this;
 }
 
+Program.prototype.skipIfKeyUnpressed = function (index) {
+  this.program.push(0xE0 + index);
+  this.program.push(0xA1);
+  return this;
+}
+
 Program.prototype.pressKey = function (index) {
   this.pressedKey = index;
   return this;
@@ -1152,3 +1199,4 @@ Program.prototype.depressKey = function (index) {
   this.depressedKey = index;
   return this;
 };
+
