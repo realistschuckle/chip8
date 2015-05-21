@@ -28,6 +28,12 @@
 
   Emulator.prototype.keydown = function (key) {
     this._keys |= 1 << key;
+    if (this._waitingForKey) {
+      var index = this._waitingForKey - 1;
+      this._waitingForKey = false;
+      this._registers[index] = key;
+      window.setTimeout(this._loop.bind(this), 2);
+    }
   };
 
   Emulator.prototype.keyup = function (key) {
@@ -51,7 +57,7 @@
 
   Emulator.prototype.run = function () {
     this.running = true;
-    function loop() {
+    var loop = this._loop = function () {
       var h = 0;
       var l = 0;
 
@@ -139,6 +145,8 @@
         if ((this._keys & (1 << this._registers[h & 0xF])) === 0) {
           this._inst += 2;
         }
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x0A) {
+        this._waitingForKey = (h & 0xF) + 1;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
@@ -158,7 +166,9 @@
 
       this._inst += 2;
 
-      window.setTimeout(loop.bind(this), 2);
+      if (!this._waitingForKey) {
+        window.setTimeout(loop.bind(this), 2);
+      }
     }
 
     window.setTimeout(loop.bind(this), 2);
