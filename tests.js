@@ -750,6 +750,26 @@ QUnit.test('BNNN jumps to NNN + V0', function (assert) {
 
 QUnit.test('FX1E adds VX to I', function (assert) {
   var done = assert.async();
+  var index = mkindex();
+  var l1 = mkindex();
+  var l2 = mkindex();
+
+  var emulator = new Program()
+    .setRegister(index)
+    .toValue(l1)
+    .randomize(index)
+    .withValue(l2)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.notEqual(emulator.v(index), l1);
+    assert.notEqual(emulator.v(index), l2);
+    done();
+  });
+});
+
+QUnit.test('FX1E adds VX to I', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue();
   var l2 = mkbigvalue();
@@ -932,7 +952,7 @@ Program.prototype.reverseSubtractWithCarry = function (index1, index2) {
   return this;
 };
 
-Program.prototype.addValue = Program.prototype.toValue = function (value) {
+Program.prototype.withValue = Program.prototype.addValue = Program.prototype.toValue = function (value) {
   this.program.push(value)
   return this;
 };
@@ -1055,5 +1075,10 @@ Program.prototype.jumpToPlusV0 = function (address) {
   address = 0xB000 + address;
   this.program.push(address >> 8);
   this.program.push(address & 0xFF);
+  return this;
+}
+
+Program.prototype.randomize = function (index) {
+  this.program.push(0xC0 + index);
   return this;
 }

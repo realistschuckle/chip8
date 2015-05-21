@@ -120,6 +120,8 @@
         var address = (h & 0xF) * 0x100 + l + this._registers[0] - 0x200;
         this._inst = address;
         return window.requestAnimationFrame(loop.bind(this));
+      } else if (h >= 0xC0 && h < 0xD0) {
+        this._registers[h & 0xF] = l & Math.floor(Math.random() * 0xFF);
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
