@@ -22,6 +22,7 @@
     this._i = 0;
     this._stack = [];
     this.quitOn0000 = false;
+    this.running = false;
   }
 
   Emulator.prototype.v = function (index) {
@@ -40,24 +41,27 @@
   };
 
   Emulator.prototype.run = function () {
-    var h = 0;
-    var l = 0;
+    this.running = true;
+    function loop() {
+      var h = 0;
+      var l = 0;
 
-    while (true) {
       h = this._program[this._inst];
       l = this._program[this._inst + 1];
-      if (h === 0 && l === 0 && this.quitOn0000) {
-        break;
+      if (this._inst > this._program.length) {
+        return this.running = false;
+      } else if (h === 0 && l === 0 && this.quitOn0000) {
+        return this.running = false;
       } else if (h === 0 && l === 0xEE) {
         this._inst = this._stack.pop();
-        continue;
+        return window.requestAnimationFrame(loop.bind(this));
       } else if (h >= 0x10 && h < 0x20) {
         this._inst = ((h & 0xF) * 0x100 + l) - 0x200;
-        continue;
+        return window.requestAnimationFrame(loop.bind(this));
       } else if (h >= 0x20 && h < 0x30) {
         this._stack.push(this._inst + 2);
         this._inst = ((h & 0xF) * 0x100 + l) - 0x200;
-        continue;
+        return window.requestAnimationFrame(loop.bind(this));
       } else if (h >= 0x30 && h < 0x40) {
         var skip = this._registers[h % 0x30] !== l;
         if (skip) {
@@ -115,7 +119,7 @@
       } else if (h >= 0xB0 && h < 0xC0) {
         var address = (h & 0xF) * 0x100 + l + this._registers[0] - 0x200;
         this._inst = address;
-        continue;
+        return window.requestAnimationFrame(loop.bind(this));
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {
@@ -134,7 +138,11 @@
       }
 
       this._inst += 2;
+
+      window.requestAnimationFrame(loop.bind(this));
     }
+
+    window.requestAnimationFrame(loop.bind(this));
   };
 
   Object.defineProperty(Emulator.prototype, 'i', {

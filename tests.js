@@ -29,6 +29,7 @@ QUnit.test('screen memory initialized to zero', function (assert) {
 });
 
 QUnit.test('00EE returns from subroutine', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = Math.floor(Math.random() * 16) + 5;
   var index3 = mkindex();
@@ -58,22 +59,26 @@ QUnit.test('00EE returns from subroutine', function (assert) {
     .exitSub()
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var message = undefined;
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
-      message = 'First register at ' + index1 + ' ?= ' + l1;
-    } else if (index3 === i) {
-      expected = l2;
-      message = 'Second register at ' + index3 + ' ?= ' + l2;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var message = undefined;
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+        message = 'First register at ' + index1 + ' ?= ' + l1;
+      } else if (index3 === i) {
+        expected = l2;
+        message = 'Second register at ' + index3 + ' ?= ' + l2;
+      }
+      assert.equal(actual, expected, message);
     }
-    assert.equal(actual, expected, message);
-  }
+    done();
+  });
 });
 
 QUnit.test('1NNN jumps to NNN', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = Math.floor(Math.random() * 16) + 3;
   var l1 = mkvalue();
@@ -90,17 +95,21 @@ QUnit.test('1NNN jumps to NNN', function (assert) {
     .toValue(l1)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('2NNN calls subroutine at NNN', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = Math.floor(Math.random() * 16) + 3;
   var l1 = mkvalue();
@@ -117,17 +126,21 @@ QUnit.test('2NNN calls subroutine at NNN', function (assert) {
     .toValue(l1)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('3XKK does not skip if different', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -141,17 +154,21 @@ QUnit.test('3XKK does not skip if different', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('3XKK skips if same', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -165,19 +182,23 @@ QUnit.test('3XKK skips if same', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
-    } else if (index2 === i) {
-      expected = l2;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      } else if (index2 === i) {
+        expected = l2;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('4XKK skips if different', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -191,17 +212,21 @@ QUnit.test('4XKK skips if different', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('4XKK does not skip if same', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -215,19 +240,23 @@ QUnit.test('4XKK does not skip if same', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
-    } else if (index2 === i) {
-      expected = l2;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      } else if (index2 === i) {
+        expected = l2;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('5XY0 skips if same', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -243,19 +272,23 @@ QUnit.test('5XY0 skips if same', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
-    } else if (index2 == i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      } else if (index2 == i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('5XY0 does not skip if different', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -271,19 +304,23 @@ QUnit.test('5XY0 does not skip if different', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l2;
-    } else if (index2 == i) {
-      expected = l2;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l2;
+      } else if (index2 == i) {
+        expected = l2;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('6XNN', function (assert) {
+  var done = assert.async();
   var index = mkindex();
   var l = mkvalue();
   var emulator = new Program()
@@ -291,14 +328,18 @@ QUnit.test('6XNN', function (assert) {
     .toValue(l)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = index === i? l : 0;
-    assert.equal(actual, expected);
-  }
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = index === i? l : 0;
+      assert.equal(actual, expected);
+    }
+    done();
+  });
 });
 
 QUnit.test('7XNN', function (assert) {
+  var done = assert.async();
   var index = mkindex();
   var l1 = mkvalue();
   var l2 = mkvalue();
@@ -310,14 +351,18 @@ QUnit.test('7XNN', function (assert) {
     .addValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = index === i? (l1 + l2) % 0x100 : 0;
-    assert.equal(actual, expected);
-  }
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = index === i? (l1 + l2) % 0x100 : 0;
+      assert.equal(actual, expected);
+    }
+    done();
+  });
 });
 
 QUnit.test('8XY0', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l = mkvalue();
@@ -329,14 +374,18 @@ QUnit.test('8XY0', function (assert) {
     .fromRegister(index1)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = (index1 === i || index2 === i)? l : 0;
-    assert.equal(actual, expected);
-  }
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = (index1 === i || index2 === i)? l : 0;
+      assert.equal(actual, expected);
+    }
+    done();
+  });
 });
 
 QUnit.test('8XY1', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -351,19 +400,23 @@ QUnit.test('8XY1', function (assert) {
     .or(index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (i === index2) {
-      expected = l2;
-    } else if (i === index1) {
-      expected = l2 | l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (i === index2) {
+        expected = l2;
+      } else if (i === index1) {
+        expected = l2 | l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY2', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -378,19 +431,23 @@ QUnit.test('8XY2', function (assert) {
     .and(index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (i === index2) {
-      expected = l2;
-    } else if (i === index1) {
-      expected = l2 & l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (i === index2) {
+        expected = l2;
+      } else if (i === index1) {
+        expected = l2 & l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY3', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -405,19 +462,23 @@ QUnit.test('8XY3', function (assert) {
     .xor(index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 !== index2 && i === index2) {
-      expected = l2;
-    } else if (index1 !== index2 && i === index1) {
-      expected = l2 ^ l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 !== index2 && i === index2) {
+        expected = l2;
+      } else if (index1 !== index2 && i === index1) {
+        expected = l2 ^ l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY4', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -431,25 +492,29 @@ QUnit.test('8XY4', function (assert) {
     .sumWithOverflow(index1, index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 !== index2 && i === index2) {
-      expected = l2;
-    } else if (index1 !== index2 && i === index1) {
-      expected = (l1 + l2) & 0xFF;
-    } else if (index1 === index2 && i === index1) {
-      expected = (l2 * 2) & 0xFF;
-    } else if (index1 !== index2 && i === 0xF) {
-      expected = (l1 + l2) > 0xFF? 1 : 0;
-    } else if (i === 0xF) {
-      expected = (l2 * 2) > 0xFF? 1 : 0;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 !== index2 && i === index2) {
+        expected = l2;
+      } else if (index1 !== index2 && i === index1) {
+        expected = (l1 + l2) & 0xFF;
+      } else if (index1 === index2 && i === index1) {
+        expected = (l2 * 2) & 0xFF;
+      } else if (index1 !== index2 && i === 0xF) {
+        expected = (l1 + l2) > 0xFF? 1 : 0;
+      } else if (i === 0xF) {
+        expected = (l2 * 2) > 0xFF? 1 : 0;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY5', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -463,23 +528,27 @@ QUnit.test('8XY5', function (assert) {
     .subtractWithCarry(index1, index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 !== index2 && i === index2) {
-      expected = l2;
-    } else if (index1 !== index2 && i === index1) {
-      expected = (l1 - l2 + 0xFF) % 0xFF;
-    } else if (index1 !== index2 && i === 0xF) {
-      expected = (l1 - l2) < 0? 0 : 1;
-    } else if (index1 === index2 && i === 0xF) {
-      expected = 1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 !== index2 && i === index2) {
+        expected = l2;
+      } else if (index1 !== index2 && i === index1) {
+        expected = (l1 - l2 + 0xFF) % 0xFF;
+      } else if (index1 !== index2 && i === 0xF) {
+        expected = (l1 - l2) < 0? 0 : 1;
+      } else if (index1 === index2 && i === 0xF) {
+        expected = 1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY6', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue();
 
@@ -489,19 +558,23 @@ QUnit.test('8XY6', function (assert) {
     .shiftRight(index1)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1 >> 1;
-    } else if (i === 0xF) {
-      expected = l1 & 0x1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1 >> 1;
+      } else if (i === 0xF) {
+        expected = l1 & 0x1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XY7', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
   var l1 = mkvalue();
@@ -515,23 +588,27 @@ QUnit.test('8XY7', function (assert) {
     .reverseSubtractWithCarry(index1, index2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 !== index2 && i === index2) {
-      expected = l2;
-    } else if (index1 !== index2 && i === index1) {
-      expected = (l2 - l1 + 0xFF) % 0xFF;
-    } else if (index1 !== index2 && i === 0xF) {
-      expected = (l2 - l1) < 0? 0 : 1;
-    } else if (index1 === index2 && i === 0xF) {
-      expected = 1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 !== index2 && i === index2) {
+        expected = l2;
+      } else if (index1 !== index2 && i === index1) {
+        expected = (l2 - l1 + 0xFF) % 0xFF;
+      } else if (index1 !== index2 && i === 0xF) {
+        expected = (l2 - l1) < 0? 0 : 1;
+      } else if (index1 === index2 && i === 0xF) {
+        expected = 1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('8XYE', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue();
 
@@ -541,19 +618,23 @@ QUnit.test('8XYE', function (assert) {
     .shiftLeft(index1)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = (l1 << 1) & 0xFF;
-    } else if (i === 0xF) {
-      expected = l1 & 0x80;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = (l1 << 1) & 0xFF;
+      } else if (i === 0xF) {
+        expected = l1 & 0x80;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('9XY0 skips if different', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -569,19 +650,23 @@ QUnit.test('9XY0 skips if different', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
-    } else if (index2 == i) {
-      expected = l2;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      } else if (index2 == i) {
+        expected = l2;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('9XY0 does not skip if same', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = (index1 + 1) % 0xF;
   var l1 = mkvalue();
@@ -597,29 +682,37 @@ QUnit.test('9XY0 does not skip if same', function (assert) {
     .toValue(l2)
     .run();
 
-  for (var i = 0; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l2;
-    } else if (index2 == i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l2;
+      } else if (index2 == i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('ANNN sets the index reigster', function (assert) {
+  var done = assert.async();
   var l1 = mkbigvalue();
 
   var emulator = new Program()
     .setIndexRegister(l1)
     .run();
 
-  assert.equal(emulator.i, l1);
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.i, l1);
+    done();
+  });
 });
 
 QUnit.test('BNNN jumps to NNN + V0', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var index2 = Math.floor(Math.random() * 16) + 6;
   var l1 = mkvalue();
@@ -632,6 +725,7 @@ QUnit.test('BNNN jumps to NNN + V0', function (assert) {
     .setRegister(0)
     .toValue(index1)
     .jumpToPlusV0(0x200 + index2);
+
   for (var i = 4; i < index1 + index2; i += 1) {
     program.noop();
   }
@@ -641,17 +735,21 @@ QUnit.test('BNNN jumps to NNN + V0', function (assert) {
     .toValue(l1)
     .run();
 
-  for (var i = 1; i < 16; i += 1) {
-    var actual = emulator.v(i);
-    var expected = 0;
-    if (index1 === i) {
-      expected = l1;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 1; i < 16; i += 1) {
+      var actual = emulator.v(i);
+      var expected = 0;
+      if (index1 === i) {
+        expected = l1;
+      }
+      assert.equal(actual, expected);
     }
-    assert.equal(actual, expected);
-  }
+    done();
+  });
 });
 
 QUnit.test('FX1E adds VX to I', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue();
   var l2 = mkbigvalue();
@@ -663,10 +761,14 @@ QUnit.test('FX1E adds VX to I', function (assert) {
     .addRegisterToIndexRegister(index1)
     .run();
 
-  assert.equal(emulator.i, l1 + l2);
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.i, l1 + l2);
+    done();
+  });
 });
 
 QUnit.test('FX33 stores the BCD of VX in M(I)..M(I+2)', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue();
   var l2 = mkindex() + index1;
@@ -681,13 +783,17 @@ QUnit.test('FX33 stores the BCD of VX in M(I)..M(I+2)', function (assert) {
     .bcdFrom(index1)
     .run();
 
-  var mem = emulator.memory(l2, l2 + 2);
-  assert.equal(mem[0], h);
-  assert.equal(mem[1], t);
-  assert.equal(mem[2], d);
+  emulator.waitForEmulatorToComplete(function () {
+    var mem = emulator.memory(l2, l2 + 2);
+    assert.equal(mem[0], h);
+    assert.equal(mem[1], t);
+    assert.equal(mem[2], d);
+    done();
+  });
 });
 
 QUnit.test('FX55 stores V0..VX in memory at M(I)', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = Math.min(mkvalue(), 0xE0);
   var l2 = mkvalue();
@@ -705,13 +811,17 @@ QUnit.test('FX55 stores V0..VX in memory at M(I)', function (assert) {
     .copyToMemoryThrough(index1)
     .run();
 
-  var mem = emulator.memory(l2, l2 + index1);
-  for (var i = 0; i <= index1; i += 1) {
-    assert.equal(mem[i], l1 + i);
-  }
+  emulator.waitForEmulatorToComplete(function () {
+    var mem = emulator.memory(l2, l2 + index1);
+    for (var i = 0; i <= index1; i += 1) {
+      assert.equal(mem[i], l1 + i);
+    }
+    done();
+  });
 });
 
 QUnit.test('FX65 sets V0..VX from memory at M(I)', function (assert) {
+  var done = assert.async();
   var index1 = mkindex();
   var l1 = mkvalue() + 0x10;
   var l2 = Math.min(mkvalue(), 0xE0);
@@ -730,16 +840,28 @@ QUnit.test('FX65 sets V0..VX from memory at M(I)', function (assert) {
   }
 
   var emulator = program.run();
-
-  for (var i = 0; i < 16; i += 1) {
-    var expected = 0;
-    if (i <= index1) {
-      expected = l2 + i;
+  emulator.waitForEmulatorToComplete(function () {
+    for (var i = 0; i < 16; i += 1) {
+      var expected = 0;
+      if (i <= index1) {
+        expected = l2 + i;
+      }
+      assert.equal(emulator.v(i), expected);
     }
-    assert.equal(emulator.v(i), expected);
-  }
+    done();
+  });
 });
 
+
+chip8.Emulator.prototype.waitForEmulatorToComplete = function(callback) {
+  function check() {
+    if (this.running) {
+      return setTimeout(check.bind(this), 1);
+    }
+    callback();
+  }
+  setTimeout(check.bind(this), 1);
+}
 
 function mkindex() {
   return Math.floor(Math.random() * 0xF);
