@@ -21,6 +21,7 @@
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
     this._keys = 0;
     this._i = 0;
+    this._delayTimer = 0;
     this._stack = [];
     this.quitOn0000 = false;
     this.running = false;
@@ -145,6 +146,8 @@
         if ((this._keys & (1 << this._registers[h & 0xF])) === 0) {
           this._inst += 2;
         }
+      } else if (h >= 0xF0 && h <= 0xFF && l == 0x07) {
+        this._registers[h - 0xF0] = this._delayTimer;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x0A) {
         this._waitingForKey = (h & 0xF) + 1;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {

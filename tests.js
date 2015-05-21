@@ -857,6 +857,23 @@ QUnit.test('EXA1 does not skip instruction if key VX pressed', function (assert)
   });
 });
 
+QUnit.test('FX07 sets VX to delay_timer', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(mkvalue())
+    .setRegister(index1)
+    .toDelayTimer()
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.v(index1), 0);
+    done();
+  })
+});
+
 QUnit.test('FX0A waits for keypress, stores in VX', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1222,4 +1239,11 @@ Program.prototype.waitForKeypress = function (index) {
   this.program.push(0xF0 + index);
   this.program.push(0x0A);
   return this;
-}
+};
+
+Program.prototype.toDelayTimer = function () {
+  var h = 0xF0 + (this.program.pop() & 0xF);
+  this.program.push(h);
+  this.program.push(0x07);
+  return this;
+};

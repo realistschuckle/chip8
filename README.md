@@ -31,7 +31,7 @@ http://en.m.wikipedia.org/wiki/CHIP-8
   DXYN     Show N-byte sprite from M(I) at coords (VX,VY), VF := collision.
 ✔ EX9E     Skip next instruction if key VX pressed
 ✔ EXA1     Skip next instruction if key VX not pressed
-  FX07     VX := delay_timer
+✔ FX07     VX := delay_timer
 ✔ FX0A     wait for keypress, store hex value of key in VX
   FX15     delay_timer := VX
   FX18     sound_timer := VX
