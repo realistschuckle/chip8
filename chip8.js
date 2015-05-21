@@ -112,6 +112,10 @@
         }
       } else if (h >= 0xA0 && h < 0xB0) {
         this._i = (h & 0xF) * 0x100 + l;
+      } else if (h >= 0xB0 && h < 0xC0) {
+        var address = (h & 0xF) * 0x100 + l + this._registers[0] - 0x200;
+        this._inst = address;
+        continue;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {

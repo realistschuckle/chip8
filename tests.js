@@ -39,6 +39,10 @@ QUnit.test('00EE returns from subroutine', function (assert) {
     index3 = mkindex();
   }
 
+  if (index2 % 2) {
+    index2 += 1;
+  }
+
   var program = new Program()
     .call(0x200 + index2)
     .setRegister(index3)
@@ -615,6 +619,38 @@ QUnit.test('ANNN sets the index reigster', function (assert) {
   assert.equal(emulator.i, l1);
 });
 
+QUnit.test('BNNN jumps to NNN + V0', function (assert) {
+  var index1 = mkindex();
+  var index2 = Math.floor(Math.random() * 16) + 6;
+  var l1 = mkvalue();
+
+  while (index2 % 1 || index2 === index1) {
+    index2 = (index2 + 1) % 0xF;
+  }
+
+  var program = new Program()
+    .setRegister(0)
+    .toValue(index1)
+    .jumpToPlusV0(0x200 + index2);
+  for (var i = 4; i < index1 + index2; i += 1) {
+    program.noop();
+  }
+
+  var emulator = program
+    .setRegister(index1)
+    .toValue(l1)
+    .run();
+
+  for (var i = 1; i < 16; i += 1) {
+    var actual = emulator.v(i);
+    var expected = 0;
+    if (index1 === i) {
+      expected = l1;
+    }
+    assert.equal(actual, expected);
+  }
+});
+
 QUnit.test('FX1E adds VX to I', function (assert) {
   var index1 = mkindex();
   var l1 = mkvalue();
@@ -892,3 +928,10 @@ Program.prototype.exitSub = function () {
   this.program.push(0xEE);
   return this;
 };
+
+Program.prototype.jumpToPlusV0 = function (address) {
+  address = 0xB000 + address;
+  this.program.push(address >> 8);
+  this.program.push(address & 0xFF);
+  return this;
+}

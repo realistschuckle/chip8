@@ -23,7 +23,7 @@ A CHIP-8 emulator in ECMAscript
 ✔ 8XYE     VX := VX shl 1, VF := carry
 ✔ 9XY0     Skip next instruction if VX <> VY
 ✔ ANNN     I := NNN
-  BNNN     Jump to NNN+V0
+✔ BNNN     Jump to NNN+V0
   CXKK     VX := pseudorandom_number and KK
   EX9E     Skip next instruction if key VX pressed
   EXA1     Skip next instruction if key VX not pressed
