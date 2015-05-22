@@ -17,6 +17,7 @@
     this._buffer = new ArrayBuffer(0x1000);
     this._memory = new Uint8Array(this._buffer);
     this._program = new Uint8Array(this._buffer, 0x200, 0xCA0);
+    this._gfx = new Uint8Array(new ArrayBuffer(0x800));
     this._inst = 0;
     this._registers = new Uint8Array(new ArrayBuffer(0x10));
     this._keys = 0;
@@ -34,7 +35,7 @@
       var index = this._waitingForKey - 1;
       this._waitingForKey = false;
       this._registers[index] = key;
-      window.setTimeout(this._loop.bind(this), 2);
+      window.setTimeout(this._loop.bind(this), 0);
     }
   };
 
@@ -152,6 +153,11 @@
         return window.setTimeout(loop.bind(this), 2);
       } else if (h >= 0xC0 && h < 0xD0) {
         this._registers[h & 0xF] = l & Math.floor(Math.random() * 0xFF);
+      } else if (h >= 0xD0 && h < 0xE0) {
+        var x = this._registers[h - 0xD0];
+        var y = this._registers[Math.floor(l / 0x10)];
+        var rows = l & 0xF;
+        console.log('at (', x, ',', y, ') with', rows, 'rows');
       } else if (h >= 0xE0 && h <= 0xF0 && l == 0x9E) {
         if (this._keys & (1 << this._registers[h & 0xF])) {
           this._inst += 2;
@@ -210,6 +216,12 @@
   Object.defineProperty(Emulator.prototype, 'sound', {
     get: function () {
       return this._soundTimer;
+    }
+  });
+  
+  Object.defineProperty(Emulator.prototype, 'gfx', {
+    get: function () {
+      return this._gfx;
     }
   });
   

@@ -18,6 +18,16 @@ QUnit.test('address pointer initialized to zero', function (assert) {
   assert.equal(emulator.i, 0);
 });
 
+QUnit.test('sound timer initialized to zero', function (assert) {
+  var emulator = new chip8.Emulator();
+  assert.equal(emulator.sound, 0);
+});
+
+QUnit.test('delay timer initialized to zero', function (assert) {
+  var emulator = new chip8.Emulator();
+  assert.equal(emulator.delay, 0);
+});
+
 QUnit.test('00EE returns from subroutine', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -753,6 +763,56 @@ QUnit.test('CXKK sets VX to KK & rand()', function (assert) {
   assert.ok(1, 'I do not really know how to test this...');
 });
 
+QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var index2 = mkindex();
+  var index3 = mkindex() + 16;
+  var l1 = mkindex();
+  var l2 = mkindex();
+
+  var index4 = index2 * 8 + index1;
+  var index5 = (index2 + 1) * 8 + index1;
+
+  if (index3 % 2) {
+    index3 += 1;
+  }
+
+  var program = new Program()
+    .setIndexRegister(index3)
+    .setRegister(index1)
+    .toValue(l1)
+    .setRegister(index2)
+    .toValue(l2)
+    .renderSprite(index1, index2, 2);
+
+  while (program.program.length < index3) {
+    program.noop();
+  }
+
+  function within(col, row, n) {
+    return l1 <= col && col < l1 + 8 &&
+           l2 <= row && row < l2 + n;
+  }
+
+  program.noop(0xFF);
+console.log('l1, l2:', l1, l2);
+  var emulator = program.run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    var gfx = emulator.gfx;
+    for (var row = 0; row < 32; row += 1) {
+      for (var col = 0; col < 64; col += 1) {
+        var i = row * 64 + col;
+        console.log('col, row, within', col, row, within(col, row, 2));
+        var expected = within(col, row, 2)? 1 : 0;
+        assert.equal(gfx[i], expected);
+      }
+    }
+    done();
+  });
+});
+
 QUnit.test('EX9E skips instruction if key VX pressed', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1107,6 +1167,12 @@ function runProgram(program, pressedKey, depressedKey) {
   return emulator;
 }
 
+function pad(n, width, z) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
 function Program() {
   this.program = [];
 }
@@ -1333,3 +1399,10 @@ Program.prototype.setSoundTimerTo = function (index) {
   this.program.push(0x18);
   return this;
 };
+
+Program.prototype.renderSprite = function (x, y, n) {
+  this.program.push(0xD0 + x);
+  this.program.push(y * 0x10 + n);
+  return this;
+};
+
