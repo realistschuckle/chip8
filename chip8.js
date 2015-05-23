@@ -157,7 +157,19 @@
         var x = this._registers[h - 0xD0];
         var y = this._registers[Math.floor(l / 0x10)];
         var rows = l & 0xF;
-        console.log('at (', x, ',', y, ') with', rows, 'rows');
+        for (var row = y; row < y + rows; row += 1) {
+          var value = this._memory[this._i + row - y]
+          for (var w = 0; w < 8; w += 1) {
+            var index = x + w + row * 64;
+            var pow = Math.pow(2, w);
+            if ((value & pow) > 0) {
+              this._gfx[index] = 1 - this._gfx[index];
+              if (this._gfx[index] === 0) {
+                this._registers[0xF] = 1;
+              }
+            }
+          }
+        }
       } else if (h >= 0xE0 && h <= 0xF0 && l == 0x9E) {
         if (this._keys & (1 << this._registers[h & 0xF])) {
           this._inst += 2;

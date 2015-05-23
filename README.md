@@ -28,7 +28,7 @@ http://en.m.wikipedia.org/wiki/CHIP-8
 ✔ ANNN     I := NNN
 ✔ BNNN     Jump to NNN+V0
 ✔ CXKK     VX := pseudorandom_number and KK
-  DXYN     Show N-byte sprite from M(I) at coords (VX,VY), VF := collision.
+✔ DXYN     Show N-byte sprite from M(I) at coords (VX,VY), VF := collision.
 ✔ EX9E     Skip next instruction if key VX pressed
 ✔ EXA1     Skip next instruction if key VX not pressed
 ✔ FX07     VX := delay_timer

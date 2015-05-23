@@ -763,7 +763,7 @@ QUnit.test('CXKK sets VX to KK & rand()', function (assert) {
   assert.ok(1, 'I do not really know how to test this...');
 });
 
-QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate', function (assert) {
+QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate, no collision', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
   var index2 = mkindex();
@@ -779,7 +779,7 @@ QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate', function (assert)
   }
 
   var program = new Program()
-    .setIndexRegister(index3)
+    .setIndexRegister(0x200 + index3)
     .setRegister(index1)
     .toValue(l1)
     .setRegister(index2)
@@ -796,19 +796,77 @@ QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate', function (assert)
   }
 
   program.noop(0xFF);
-console.log('l1, l2:', l1, l2);
+  program.noop(0xFF);
   var emulator = program.run();
-
   emulator.waitForEmulatorToComplete(function () {
     var gfx = emulator.gfx;
     for (var row = 0; row < 32; row += 1) {
       for (var col = 0; col < 64; col += 1) {
         var i = row * 64 + col;
-        console.log('col, row, within', col, row, within(col, row, 2));
         var expected = within(col, row, 2)? 1 : 0;
         assert.equal(gfx[i], expected);
       }
     }
+    assert.equal(emulator.v(0xF), 0);
+    done();
+  });
+});
+
+QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate, with collision', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var index2 = mkindex();
+  var index3 = mkindex() + 16;
+  var l1 = mkindex();
+  var l2 = mkindex();
+
+  var index4 = index2 * 8 + index1;
+  var index5 = (index2 + 1) * 8 + index1;
+
+  if (index3 % 2) {
+    index3 += 1;
+  }
+
+  var program = new Program()
+    .setIndexRegister(0x200 + index3)
+    .setRegister(index1)
+    .toValue(l1)
+    .setRegister(index2)
+    .toValue(l2)
+    .renderSprite(index1, index2, 2)
+    .setRegister(index1)
+    .toValue(l1 + 1)
+    .setRegister(index2)
+    .toValue(l2 + 1)
+    .renderSprite(index1, index2, 2);
+
+  while (program.program.length < index3) {
+    program.noop();
+  }
+
+  function within(col, row, n) {
+    var onFirstRow = l1 <= col && col < l1 + 8
+                  && l2 === row;
+    var onSecondRow = (col === l1 || col === l1 + 8)
+                  && l2 + 1 === row;
+    var onThirdRow = l1 + 1 <= col && col < l1 + 9
+                  && l2 + 2 === row;
+    return onFirstRow || onSecondRow || onThirdRow;
+  }
+
+  program.noop(0xFF);
+  program.noop(0xFF);
+  var emulator = program.run();
+  emulator.waitForEmulatorToComplete(function () {
+    var gfx = emulator.gfx;
+    for (var row = 0; row < 32; row += 1) {
+      for (var col = 0; col < 64; col += 1) {
+        var i = row * 64 + col;
+        var expected = within(col, row, 2)? 1 : 0;
+        assert.equal(gfx[i], expected);
+      }
+    }
+    assert.equal(emulator.v(0xF), 1);
     done();
   });
 });
