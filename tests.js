@@ -28,6 +28,38 @@ QUnit.test('delay timer initialized to zero', function (assert) {
   assert.equal(emulator.delay, 0);
 });
 
+QUnit.test('00E0 clears the display', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var index2 = (index1 + 1) % 16;
+  var index3 = (index2 + 1) % 16;
+  var l1 = 61; mkvalue() % 64;
+  var l2 = mkvalue() % 32;
+  var l3 = mkindex();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l3)
+    .setRegister(index2)
+    .toValue(l1)
+    .setRegister(index3)
+    .toValue(l2)
+    .fontLetter(index1)
+    .renderSprite(index2, index3, 5)
+    .clearScreen()
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    var gfx = emulator.gfx;
+    for (var row = 0; row < 32; row += 1) {
+      for (var col = 0; col < 64; col += 1) {
+        assert.equal(gfx[row * 64 + col], 0);
+      }
+    }
+    done();
+  });
+});
+
 QUnit.test('00EE returns from subroutine', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -804,7 +836,9 @@ QUnit.test('DXYN writes N-byte sprite to (VX, VY) coordinate, no collision', fun
       for (var col = 0; col < 64; col += 1) {
         var i = row * 64 + col;
         var expected = within(col, row, 2)? 1 : 0;
-        assert.equal(gfx[i], expected);
+        if (gfx[i] !== expected) {
+          assert.ok(false, 'failed at ' + col + ', ' + row);
+        }
       }
     }
     assert.equal(emulator.v(0xF), 0);
@@ -1115,7 +1149,7 @@ QUnit.test('FX29 points I to font sprite for character VX', function (assert) {
     .run();
 
   emulator.waitForEmulatorToComplete(function () {
-    assert.equal(emulator.i, l1);
+    assert.equal(emulator.i, l1 * 5);
     done();
   });
 });
@@ -1484,5 +1518,11 @@ Program.prototype.renderSprite = function (x, y, n) {
 Program.prototype.fontLetter = function (index) {
   this.program.push(0xF0 + index);
   this.program.push(0x29);
+  return this;
+};
+
+Program.prototype.clearScreen = function (index) {
+  this.program.push(0);
+  this.program.push(0xE0);
   return this;
 };

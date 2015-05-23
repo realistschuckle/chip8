@@ -102,6 +102,10 @@
         return this.running = false;
       } else if (h === 0 && l === 0 && this.quitOn0000) {
         return this.running = false;
+      } else if (h === 0 && l === 0xE0) {
+        for (var i = 0; i < this._gfx.length; i += 1) {
+          this._gfx[i] = 0;
+        }
       } else if (h === 0 && l === 0xEE) {
         this._inst = this._stack.pop();
         return window.setTimeout(loop.bind(this), 2);
@@ -179,7 +183,7 @@
         for (var row = y; row < y + rows; row += 1) {
           var value = this._memory[this._i + row - y]
           for (var w = 0; w < 8; w += 1) {
-            var index = x + w + row * 64;
+            var index = x + (7 - w) + (row % 32) * 64;
             var pow = Math.pow(2, w);
             if ((value & pow) > 0) {
               this._gfx[index] = 1 - this._gfx[index];
@@ -206,7 +210,7 @@
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x18) {
         this._soundTimer = this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x29) {
-        this._i = this._registers[h - 0xF0];
+        this._i = this._registers[(h - 0xF0)] * 0x05;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x1E) {
         this._i += this._registers[h - 0xF0];
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x33) {

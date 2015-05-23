@@ -6,7 +6,7 @@ http://en.m.wikipedia.org/wiki/CHIP-8
 
 ## Opcodes
 ```
-  00E0     Clear display
+✔ 00E0     Clear display
 ✔ 00EE     Return from subroutine
 ✔ 1NNN     Jump to NNN
 ✔ 2NNN     Call subroutine at NNN
