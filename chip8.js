@@ -111,6 +111,7 @@
         for (var i = 0; i < this._gfx.length; i += 1) {
           this._gfx[i] = 0;
         }
+        this.dirty = true;
       } else if (h === 0 && l === 0xEE) {
         this._inst = this._stack.pop();
         return window.setTimeout(loop.bind(this), 0);
