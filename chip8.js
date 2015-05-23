@@ -71,9 +71,6 @@
   };
 
   Emulator.prototype.load = function (program) {
-// for (var i = 0; i < program.length; i += 2) {
-//   console.log(program[i].toString(16) + program[i + 1].toString(16));
-// }
     this._program.set(program);
   };
 
@@ -86,6 +83,9 @@
       }
       if (this._soundTimer > 0) {
         this._soundTimer -= 1;
+        if (this._soundTimer === 0 && this.beep) {
+          this.beep();
+        }
       }
 
       window.requestAnimationFrame(timerCountDown.bind(this));

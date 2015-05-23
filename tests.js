@@ -1118,6 +1118,34 @@ QUnit.test('FX18 sets sound timer which does count down to 0', function (assert)
   setTimeout(check, 100);
 });
 
+QUnit.test('FX18 calls beep if set', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var called = false;
+  function beep() {
+    called = true;
+  }
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(0x1)
+    .setSoundTimerTo(index1)
+    .waitForKeypress(index1)
+    .setBeep(beep)
+    .run();
+
+  function check() {
+    if (emulator.sound === 0) {
+      assert.ok(called);
+      return done();
+    }
+
+    setTimeout(check, 100);
+  }
+
+  setTimeout(check, 100);
+});
+
 QUnit.test('FX1E adds VX to I', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1262,7 +1290,7 @@ function mkbigvalue() {
   return Math.floor(Math.random() * 0x1000);
 }
 
-function runProgram(program, pressedKey, depressedKey) {
+function runProgram(program, pressedKey, depressedKey, beeper) {
   var emulator = new chip8.Emulator();
   emulator.quitOn0000 = true;
   emulator.load(program);
@@ -1272,6 +1300,7 @@ function runProgram(program, pressedKey, depressedKey) {
   if (depressedKey) {
     emulator.keyup(pressedKey);
   }
+  emulator.beep = beeper;
   emulator.run();
   return emulator;
 }
@@ -1293,7 +1322,7 @@ Object.defineProperty(Program.prototype, 'length', {
 });
 
 Program.prototype.run = function () {
-  return runProgram(this.program, this.pressedKey, this.depressedKey);
+  return runProgram(this.program, this.pressedKey, this.depressedKey, this.beeper);
 };
 
 Program.prototype.setRegister = function (index) {
@@ -1526,3 +1555,8 @@ Program.prototype.clearScreen = function (index) {
   this.program.push(0xE0);
   return this;
 };
+
+Program.prototype.setBeep = function (beep) {
+  this.beeper = beep;
+  return this;
+}
