@@ -1103,6 +1103,23 @@ QUnit.test('FX1E adds VX to I', function (assert) {
   });
 });
 
+QUnit.test('FX29 points I to font sprite for character VX', function (assert) {
+  var done = assert.async();
+  var index1 = mkindex();
+  var l1 = mkindex();
+
+  var emulator = new Program()
+    .setRegister(index1)
+    .toValue(l1)
+    .fontLetter(index1)
+    .run();
+
+  emulator.waitForEmulatorToComplete(function () {
+    assert.equal(emulator.i, l1);
+    done();
+  });
+});
+
 QUnit.test('FX33 stores the BCD of VX in M(I)..M(I+2)', function (assert) {
   var done = assert.async();
   var index1 = mkindex();
@@ -1464,3 +1481,8 @@ Program.prototype.renderSprite = function (x, y, n) {
   return this;
 };
 
+Program.prototype.fontLetter = function (index) {
+  this.program.push(0xF0 + index);
+  this.program.push(0x29);
+  return this;
+};
