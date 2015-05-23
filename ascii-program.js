@@ -1,6 +1,7 @@
 var screen = document.getElementById('ascii-screen');
 var message = document.getElementById('ascii-message');
 var play = document.getElementById('play');
+var source = document.getElementById('source');
 
 var program = new chip8x.Program();
 program.clearScreen();
@@ -16,6 +17,8 @@ for (var i = 0; i < 0x10; i += 1) {
   program.draw(0, 1, i * 4, 23, 1);
 }
 program.end();
+
+source.innerHTML = 'INST  OPCODE\n----  ------\n' + program.toString();
 
 var emulator = new chip8.Emulator();
 emulator.load(program.bytes);
