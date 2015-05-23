@@ -10,3 +10,25 @@ a {
 nav {
   margin-bottom: 1em;
 }
+
+#ascii-screen {
+  font-family: Monaco, Consolas, monospace;
+  text-align: center;
+  line-height: .7em;
+  color: green;
+  background-color: black;
+  padding: 2em;
+  width: 38em;
+  margin: auto;
+}
+
+#ascii-message {
+  text-align: center;
+}
+
+.controls {
+  padding: 2em;
+  width: 38em;
+  margin: auto;
+  text-align: center;
+}
