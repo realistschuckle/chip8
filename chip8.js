@@ -230,9 +230,9 @@
         this._memory[this._i + 1] = Math.floor((value % 100) / 10);
         this._memory[this._i + 2] = value % 10;
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x55) {
-        this._memory.set(this._registers.slice(0, h - 0xF0 + 1), this._i);
+        this._memory.set(this._registers.subarray(0, h - 0xF0 + 1), this._i);
       } else if (h >= 0xF0 && h <= 0xFF && l == 0x65) {
-        this._registers.set(this._memory.slice(this._i, this._i + h - 0xF0 + 1));
+        this._registers.set(this._memory.subarray(this._i, this._i + h - 0xF0 + 1));
       } else {
         var inst = pad(h.toString(16), 2) + pad(l.toString(16), 2);
         console.log('not a recognized instruction:', inst);

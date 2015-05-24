@@ -9,7 +9,18 @@
   <body>
     <h1 id="ascii-message">&nbsp;</h1>
     <div class="controls">
-      <button class="pure-button pure-button-primary" id="play" disabled>play!</button>
+      <form  class="pure-form">
+        <select id="games">
+          <option value="">Choose a game...</option>
+          <option value="15PUZZLE">tiles</option>
+          <option value="BLINKY">blinky</option>
+          <option value="BLITZ">blitz</option>
+          <option value="BRIX">brix</option>
+          <option value="CONNECT4">connect 4</option>
+          <option value="TEST">test</option>
+        </select>
+        <button type="button" class="pure-button pure-button-primary" id="play" disabled>play!</button>
+      </form>
     </div>
     <pre id="ascii-screen">
       

@@ -2,6 +2,7 @@ var screen = document.getElementById('ascii-screen');
 var message = document.getElementById('ascii-message');
 var play = document.getElementById('play');
 var source = document.getElementById('source');
+var games = document.getElementById('games');
 
 var program = new chip8x.Program();
 // program.clearScreen();
@@ -19,13 +20,19 @@ var program = new chip8x.Program();
 // program.end();
 // program.jumpToMark();
 
-program.loadFromHref('./roms/15PUZZLE', function (e) {
-  if (e) {
-    return source.innerHTML = 'ERROR!';
-  }
-  emulator.load(program.bytes);
+games.addEventListener('change', function (e) {
+  var target = e.target;
+  var value = target.options[target.selectedIndex].value;
   play.disabled = false;
-  source.innerHTML = 'INST  MEMLOC  OPCODE\n----  ------  ------\n' + program.toString();
+
+  program.loadFromHref('./roms/' + value, function (e) {
+    if (e) {
+      return source.innerHTML = 'ERROR!';
+    }
+    emulator.load(program.bytes);
+    play.disabled = false;
+    source.innerHTML = 'INST  MEMLOC  OPCODE\n----  ------  ------\n' + program.toString();
+  });
 });
 
 var emulator = new chip8.Emulator();

@@ -45,7 +45,7 @@
 
     req.onload = function (e) {
       var buffer = req.response;
-      if (buffer) {
+      if (req.status < 400) {
         self.bytes = new Uint8Array(buffer);
         cb();
       } else {
