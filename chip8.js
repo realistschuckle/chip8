@@ -78,6 +78,10 @@
     this._inst = 0;
   };
 
+  Emulator.prototype.stop = function () {
+    this.running = false;
+  };
+
   Emulator.prototype.run = function () {
     this.running = true;
 
