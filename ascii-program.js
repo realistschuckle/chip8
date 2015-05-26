@@ -1,4 +1,4 @@
-var screen = document.getElementById('ascii-screen');
+var scr = document.getElementById('ascii-screen');
 var message = document.getElementById('ascii-message');
 var play = document.getElementById('play');
 var source = document.getElementById('source');
@@ -45,7 +45,7 @@ function updateScreen() {
       rowText[y] = texts[y].join('');
     }
 
-    screen.innerHTML = rowText.join('\n');
+    scr.innerHTML = rowText.join('\n');
   }
   if (emulator.running) {
     window.setTimeout(updateScreen, 0);
